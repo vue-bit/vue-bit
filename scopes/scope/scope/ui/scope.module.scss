@@ -1,0 +1,49 @@
+@import '@teambit/ui-foundation.ui.constants.z-indexes/z-indexes.module.scss';
+
+.scope {
+  display: flex;
+  flex-direction: column;
+
+  height: 100vh;
+  overflow: hidden;
+  .topbar {
+    flex: none;
+    background-color: var(--bit-bg-color, #ffffff);
+    border-bottom: 1px solid var(--bit-border-color-lightest, #ededed);
+    .whiteCorner {
+      background-color: var(--bit-bg-color, #ffffff);
+      border-bottom: 1px solid var(--bit-border-color-lightest, #ededed);
+    }
+  }
+}
+
+.main {
+  flex: 1 1;
+  height: 100%;
+  overflow: hidden;
+}
+
+.splitter {
+  position: relative;
+
+  > :first-child {
+    z-index: $pane-splitter-zIndex;
+    position: absolute;
+  }
+}
+
+.sidebar {
+  min-width: 100px;
+  max-width: 85%;
+  position: relative;
+  overflow: unset;
+  height: 100%;
+
+  &.collapsed {
+    overflow: hidden;
+  }
+}
+
+.pane {
+  height: 100%;
+}

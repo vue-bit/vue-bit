@@ -1,0 +1,15 @@
+.linkWrapper {
+  background-color: var(--bit-accent-color, #6c5ce7);
+  &.active {
+    display: flex;
+    background-color: var(--bit-accent-color, #6c5ce7);
+    height: 40px;
+  }
+}
+.panelLink {
+  cursor: pointer;
+}
+
+.composition {
+  width: 200px;
+}

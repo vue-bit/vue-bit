@@ -1,0 +1,103 @@
+import { Command, CommandOptions } from '@teambit/cli';
+import { Logger } from '@teambit/logger';
+import { timeFormat } from '@teambit/toolbox.time.time-format';
+import { compact } from 'lodash';
+import chalk from 'chalk';
+import { Workspace } from '@teambit/workspace';
+import { InstallMain, WorkspaceLinkOptions, WorkspaceLinkResults } from '../install.main.runtime';
+import { ComponentListLinks, packageListLinks } from './component-list-links';
+import { CoreAspectsLinks } from './core-aspects-links';
+import { NestedComponentLinksLinks } from './nested-deps-in-nm-links';
+import { RewireRow } from './rewire-row';
+import { linkToDir } from './link-to-dir';
+
+type LinkCommandOpts = {
+  rewire: boolean;
+  verbose: boolean;
+  target: string;
+  skipFetchingObjects?: boolean;
+  peers?: boolean;
+};
+export class LinkCommand implements Command {
+  name = 'link [component-names...]';
+  alias = '';
+  description = 'create links in the node_modules directory, to core aspects and to components in the workspace';
+  helpUrl = 'reference/workspace/component-links';
+  extendedDescription: string;
+  group = 'development';
+  private = false;
+  arguments = [{ name: 'component-names...', description: 'names or IDs of the components to link' }];
+  options = [
+    ['j', 'json', 'return the output as JSON'],
+    ['', 'verbose', 'verbose output'],
+    ['r', 'rewire', 'Replace relative paths with module paths in code (e.g. "../foo" => "@bit/foo")'],
+    [
+      '',
+      'target <dir>',
+      'link to an external directory (similar to npm-link) so other projects could use these components',
+    ],
+    ['', 'skip-fetching-objects', 'skip fetch missing objects from remotes before linking'],
+    ['', 'peers', 'link peer dependencies of the components too'],
+  ] as CommandOptions;
+
+  constructor(
+    private install: InstallMain,
+    /**
+     * workspace extension.
+     */
+    private workspace: Workspace,
+
+    /**
+     * logger extension.
+     */
+    private logger: Logger
+  ) {}
+
+  async report([ids]: [string[]], opts: LinkCommandOpts) {
+    const startTime = Date.now();
+    const linkResults = await this.json([ids], opts);
+    const endTime = Date.now();
+    const numOfComponents = linkResults.legacyLinkResults?.length;
+    const timeDiff = timeFormat(endTime - startTime);
+    const coreAspectsLinksWithMainAspect = linkResults.coreAspectsLinks || [];
+    if (linkResults.teambitBitLink) {
+      coreAspectsLinksWithMainAspect.unshift(linkResults.teambitBitLink);
+    }
+    const numOfCoreAspects = coreAspectsLinksWithMainAspect.length;
+
+    const title = `Linked ${numOfComponents} components and ${numOfCoreAspects} core aspects to node_modules for workspace: ${this.workspace.name}`;
+    const coreLinks = CoreAspectsLinks({
+      coreAspectsLinks: coreAspectsLinksWithMainAspect,
+      verbose: opts.verbose,
+    });
+    const nonCorePackagesLinks = packageListLinks(linkResults.slotOriginatedLinks);
+    const compsLinks = ComponentListLinks({ componentListLinks: linkResults.legacyLinkResults, verbose: opts.verbose });
+    const rewireRow = RewireRow({ legacyCodemodResults: linkResults.legacyLinkCodemodResults });
+    const nestedLinks = NestedComponentLinksLinks({
+      nestedDepsInNmLinks: linkResults.nestedDepsInNmLinks,
+      verbose: opts.verbose,
+    });
+    const targetLinks = linkToDir(linkResults.linkToDirResults);
+    const footer = `Finished. ${timeDiff}`;
+    return compact([title, coreLinks, nonCorePackagesLinks, compsLinks, rewireRow, nestedLinks, targetLinks, footer]).join('\n');
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async json([ids]: [string[]], opts: LinkCommandOpts): Promise<WorkspaceLinkResults> {
+    this.logger.console(
+      `Linking components and core aspects to node_modules for workspaces: '${chalk.cyan(this.workspace.name)}'`
+    );
+
+    const linkOpts: WorkspaceLinkOptions = {
+      linkToBitRoots: true,
+      rewire: opts.rewire,
+      linkCoreAspects: true,
+      linkTeambitBit: true,
+      linkToDir: opts.target,
+      fetchObject: !opts.skipFetchingObjects,
+      includePeers: opts.peers,
+    };
+    const linkResults = await this.install.link(linkOpts);
+    return linkResults;
+  }
+}

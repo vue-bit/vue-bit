@@ -1,0 +1,48 @@
+{
+    "files": [
+        {
+            "file": "041875a4daae4a64415374062f7a4bd2eac3f751",
+            "relativePath": "bar/foo.ts",
+            "name": "foo.ts",
+            "test": false
+        }
+    ],
+    "mainFile": "bar/foo.ts",
+    "bindingPrefix": "@bit",
+    "log": {
+        "message": "tag-message",
+        "date": "1527523854385",
+        "username": "David First",
+        "email": "david@bit.dev"
+    },
+    "ci": {},
+    "docs": [],
+    "dependencies": [
+        {
+            "id": { "scope": "23th85mi-remote", "name": "/utils/is-string", "version": "0.0.1" },
+            "relativePaths": [
+                {
+                    "sourceRelativePath": "utils/is-string.ts",
+                    "destinationRelativePath": "utils/is-string.ts",
+                    "importSpecifiers": [
+                        {
+                            "mainFile": {
+                                "isDefault": true,
+                                "name": "isString"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "devDependencies": [],
+    "flattenedDependencies": [
+        { "scope": "23th85mi-remote", "name": "utils/is-type", "version": "0.0.1" },
+        { "scope": "23th85mi-remote", "name": "utils/is-string", "version": "0.0.1" }
+    ],
+    "flattenedDevDependencies": [],
+    "packageDependencies": {},
+    "devPackageDependencies": {},
+    "peerPackageDependencies": {}
+}
