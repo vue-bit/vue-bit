@@ -1,6 +1,6 @@
 {
   "name": "vue-bit",
-  "version": "1.0.770",
+  "version": "1.0.780",
   "private": false,
   "license": "Apache-2.0",
   "main": "./dist/api.js",
