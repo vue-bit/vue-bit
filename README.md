@@ -36,7 +36,7 @@ Bit is a fit to every codebase structure. You can use Bit components in a monore
 Use the Bit installer to install Bit to be available on your PATH.
 
 ```bash
-npx @teambit/bvm install
+npx vue-bit install
 ```
 
 Initialize Bit on a new folder or in an existing project by running the following command:
